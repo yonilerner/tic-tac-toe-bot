@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types"],
+    "strict": true,
+    "target": "es2022",
+    "module": "ES2022",
+    "outDir": "build",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+  }
+}
