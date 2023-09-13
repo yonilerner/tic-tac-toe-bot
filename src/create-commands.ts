@@ -8,8 +8,8 @@ async function run() {
     const command: RESTPostAPIApplicationCommandsJSONBody = {
         name: 'tic-tac-toe',
         description: 'Create a tic-tac-toe game',
-		contexts: [0, 1, 2],
-		integration_types: [0, 1],
+        contexts: [0, 1, 2],
+        integration_types: [0, 1],
     } as any // TODO Fix once types are updated
     const createdCommand = await discordClient.createApplicationCommand(
         globals.DISCORD_APP_ID,
