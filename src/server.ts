@@ -104,16 +104,16 @@ server.use(
                 })
             }
         } catch (error: unknown) {
-			let errorMessage: string
+            let errorMessage: string
             if (error instanceof Error) {
                 errorMessage = error.message
             } else {
-				errorMessage = 'Unknown error'
-			}
-			res.send({
-				type: InteractionResponseType.ChannelMessageWithSource,
-				data: {flags: MessageFlags.Ephemeral, content: errorMessage},
-			})
+                errorMessage = 'Unknown error'
+            }
+            res.send({
+                type: InteractionResponseType.ChannelMessageWithSource,
+                data: {flags: MessageFlags.Ephemeral, content: errorMessage},
+            })
         }
     },
 )
