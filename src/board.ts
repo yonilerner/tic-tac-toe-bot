@@ -152,9 +152,14 @@ export function makeMove(
     board.lastPlayer = userId
     board.cells[cellIndex] = userId === board.player1 ? X : O
 
+    const winner = hasWinner(board)[0]
+    if (winner != null) {
+        return winner
+    }
+
     if (board.cells.every((cell) => cell !== null)) {
         return 'tie'
     }
 
-    return hasWinner(board)[0]
+    return null
 }
