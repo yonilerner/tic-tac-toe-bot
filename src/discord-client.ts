@@ -25,7 +25,7 @@ export class DiscordClient {
         endpoint: string,
         method = 'GET',
         body?: unknown,
-    ): Promise<ResponseBody | undefined> {
+    ): Promise<ResponseBody | null> {
         const request = new Request(this.baseUrl + endpoint, {
             body: JSON.stringify(body),
             headers: this.headers,

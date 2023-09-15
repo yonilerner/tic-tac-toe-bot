@@ -9,19 +9,19 @@ const BOARD_SIZE = 9
 const X = '❌'
 const O = '⭕'
 
-type Cell = typeof O | typeof X | undefined
+type Cell = typeof O | typeof X | null
 type Board = {
     cells: Cell[]
-    player1: Snowflake | undefined
-    player2: Snowflake | undefined
-    lastPlayer: Snowflake | undefined
+    player1: Snowflake | null
+    player2: Snowflake | null
+    lastPlayer: Snowflake | null
 }
 
 const boards: Record<Snowflake, Board> = {}
 
 export function makeNewBoard(): Board {
     return {
-        cells: Array.from({length: BOARD_SIZE}).fill(null),
+        cells: Array.from({length: BOARD_SIZE}).fill(null) as Cell[],
         lastPlayer: null,
         player1: null,
         player2: null,
@@ -76,7 +76,7 @@ export function makeBoardComponents(
     }))
 }
 
-function hasWinner(board: Board): [Snowflake | undefined, number[]] {
+function hasWinner(board: Board): [Snowflake | null, number[]] {
     const {cells} = board
 
     let winner: Cell = null
@@ -130,7 +130,7 @@ export function makeMove(
     board: Board,
     userId: Snowflake,
     customId: string,
-): Snowflake | 'tie' | undefined {
+): Snowflake | 'tie' | null {
     const cellIndex = Number.parseInt(customId.slice(1))
     const cell = board.cells[cellIndex]
     if (cell !== null) {
