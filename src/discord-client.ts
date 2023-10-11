@@ -1,6 +1,6 @@
 import {
     type APIApplicationCommand,
-    type APIWebhook,
+    type APIMessage,
     type RESTPostAPIApplicationCommandsJSONBody,
     type RESTPostAPIWebhookWithTokenJSONBody,
     Routes,
@@ -45,13 +45,24 @@ export class DiscordClient {
         return null
     }
 
-    async executeWebhook(
-        method: string,
+    async updateWebhookMessage(
         appId: string,
         token: string,
         parameters: RESTPostAPIWebhookWithTokenJSONBody,
     ) {
-        return this.makeRequest<APIWebhook>(Routes.webhookMessage(appId, token), method, parameters)
+        return this.makeRequest<APIMessage>(
+            Routes.webhookMessage(appId, token),
+            'PATCH',
+            parameters,
+        )
+    }
+
+    async executeWebhook(
+        appId: string,
+        token: string,
+        parameters: RESTPostAPIWebhookWithTokenJSONBody,
+    ) {
+        return this.makeRequest<APIMessage>(Routes.webhook(appId, token), 'POST', parameters)
     }
 
     async createApplicationCommand(appId: string, command: RESTPostAPIApplicationCommandsJSONBody) {

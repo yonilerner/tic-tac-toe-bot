@@ -36,8 +36,7 @@ server.use(
                 if (body.data.name === 'tic-tac-toe') {
                     ;(async () => {
                         const board = makeNewBoard()
-                        const response = await discordClient.executeWebhook(
-                            'PATCH',
+                        const response = await discordClient.updateWebhookMessage(
                             globals.DISCORD_APP_ID,
                             request.body.token,
                             {
@@ -69,7 +68,7 @@ server.use(
                 }
 
                 const winner = makeMove(board, userId, body.data.custom_id)
-                if (winner) {
+                if (winner != null) {
                     response = {
                         type: InteractionResponseType.UpdateMessage,
                         data: {
