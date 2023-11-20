@@ -10,12 +10,15 @@ import {verifyKeyMiddleware} from 'discord-interactions'
 import {globals} from './globals.js'
 import {getBoard, makeBoardComponents, makeMove, makeNewBoard, saveBoard} from './board.js'
 import {DiscordClient} from './discord-client.js'
+import {RESTPostAPIWebhookWithTokenJSONBody} from 'discord-api-types/v10.js'
 
 const server = express()
 
 const discordClient = new DiscordClient(globals.DISCORD_BASE_URL, globals.DISCORD_TOKEN)
 
 const INVALID_SIGNATURE_MESSAGE = 'INVALID_SIGNATURE'
+
+const interactionTokenByInteractionId = new Map<string, string>()
 
 server.use(
     '/discord-interactions',
@@ -32,13 +35,14 @@ server.use(
 
         try {
             let response: APIInteractionResponse | undefined
+            interactionTokenByInteractionId.set(body.id, body.token)
             if (body.type === InteractionType.ApplicationCommand) {
                 if (body.data.name === 'tic-tac-toe') {
                     ;(async () => {
                         const board = makeNewBoard()
                         const response = await discordClient.updateWebhookMessage(
                             globals.DISCORD_APP_ID,
-                            request.body.token,
+                            body.token,
                             {
                                 embeds: [
                                     {
@@ -68,23 +72,43 @@ server.use(
                 }
 
                 const winner = makeMove(board, userId, body.data.custom_id)
+                let messageData: RESTPostAPIWebhookWithTokenJSONBody
                 if (winner != null) {
-                    response = {
-                        type: InteractionResponseType.UpdateMessage,
-                        data: {
-                            content: winner === 'tie' ? 'No winners here 😢' : `<@${winner}> Wins!`,
-                            components: makeBoardComponents(board),
-                            embeds: [],
-                        },
+                    messageData = {
+                        content: winner === 'tie' ? 'No winners here 😢' : `<@${winner}> Wins!`,
+                        components: makeBoardComponents(board),
+                        embeds: [],
                     }
                 } else {
-                    response = {
-                        type: InteractionResponseType.UpdateMessage,
-                        data: {
-                            components: makeBoardComponents(board),
-                        },
+                    messageData = {
+                        components: makeBoardComponents(board),
                     }
                 }
+
+                const oldMessageToken = interactionTokenByInteractionId.get(
+                    body.message.interaction?.id ?? '',
+                )
+                if (oldMessageToken) {
+                    discordClient
+                        .updateWebhookMessage(globals.DISCORD_APP_ID, oldMessageToken, {
+                            content: 'Board has moved',
+                            embeds: [],
+                            components: [],
+                        })
+                        .catch((e) => console.error('Error updating old message', e))
+                }
+
+                response = {
+                    type: InteractionResponseType.DeferredChannelMessageWithSource,
+                }
+                discordClient
+                    .updateWebhookMessage(globals.DISCORD_APP_ID, body.token, messageData)
+                    .then((newMessage) => {
+                        if (newMessage) {
+                            saveBoard(newMessage.id, board)
+                        }
+                    })
+                    .catch((e) => console.error('Error updating deferred message', e))
             } else {
                 res.sendStatus(400)
                 res.send()

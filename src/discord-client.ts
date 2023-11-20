@@ -72,4 +72,8 @@ export class DiscordClient {
             command,
         )
     }
+
+    async deleteMessage(channelId: string, messageId: string) {
+        return this.makeRequest<null>(Routes.channelMessage(channelId, messageId), 'DELETE')
+    }
 }
